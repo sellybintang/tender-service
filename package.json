@@ -1,0 +1,32 @@
+{
+  "name": "service-tender-intern",
+  "version": "1.0.0",
+  "description": "```javascript\r Schema({\r   // uid user sebagai agen\r   agen_id: String,\r   // nama user sebagai agen\r   agen_name: String,\r   // id properti\r   property_id: String,\r   // nama properti\r   property_name: String,\r   // alamat properti\r   property_address: String,\r   confirmation_purchase: {\r     type: Boolean,\r     default: false,\r   },\r   has_schedule: {\r     type: Boolean,\r     default: false,\r   },\r   is_show: {\r     type: Boolean,\r     default: true,\r   },\r   // id kavling yang dipilih\r   kavling_id: String,\r   // uid pembuatan tender\r   created_by: String,\r   // alasan membatalan tender\r   reason_cancel: String,\r   // program referral\r   referral: String,\r   // qr code yang digunakan untuk tender\r   qr_code: String,\r   // tipe survey yang dilakukan user\r   type_survey: {\r     type: String,\r     enum: [\"percakapan\", \"penawaran\", \"chat\", \"survey\", \"co_in\", \"co_ex\"],\r     default: \"percakapan\",\r   },\r   // ini berisi user sebagai agen yang join tender\r   participants_follow: Array,\r   // ini berisi user sebagai agen yang menolak tender\r   participants_reject: Array,\r   // status tender\r   status: {\r     type: String,\r     enum: [\r       \"pending\",\r       \"agen\",\r       \"survey\",\r       \"kavling\",\r       \"transaksi\",\r       \"selesai\",\r       \"expired\",\r     ],\r     default: \"pending\",\r   },\r   meet_up_at: Number,\r   created_at: Number,\r   expired_at: Number,\r });\r ```",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/andalan-solusi-cemerlang/internship/service-tender-intern.git"
+  },
+  "author": "Selly Bintang Melananda",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/andalan-solusi-cemerlang/internship/service-tender-intern/issues"
+  },
+  "homepage": "https://gitlab.com/andalan-solusi-cemerlang/internship/service-tender-intern#readme",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "firebase-admin": "^11.10.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.0",
+    "node-cron": "^3.0.2",
+    "nodemon": "^3.0.1",
+    "path": "^0.12.7"
+  }
+}

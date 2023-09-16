@@ -1,6 +1,7 @@
 # Service Tender Intern
 
 ## - `Models`
+
 ```javascript
 Schema({
   // uid user sebagai agen
@@ -66,6 +67,7 @@ Schema({
 ```
 
 ## - `Functions`
+
 ```javascript
 // tampilkan semua tender
 router.get("/daftarSemuaTender");
@@ -73,7 +75,7 @@ router.get("/daftarSemuaTender");
 router.post("/hubungiAgen", tendersCtl.hubungiAgen);
 // tender bypass langsung ada agen yang terpilih
 router.post("/hubungiAgenDenganQR", tendersCtl.hubungiAgenDenganQR);
-// tampilkan daftar tender yang tersedia yang statusnya pending
+// tampilkan daftar tender yang tersedia yang statusnya pending yang follow
 router.get("/daftarAgenTender", tendersCtl.daftarAgenTender);
 // memilih agen sebagai agen tender
 router.post("/pilihAgenTender", tendersCtl.pilihAgenTender);
@@ -94,5 +96,6 @@ router.get("/getAuctionFromCollectionByIdFollower");
 router.get("/getAuctionFromId/:id", tendersCtl.getAuctionFromId);
 // ambil tender yang masih pending/tersedia
 router.get("/tenderAgenTersedia", tendersCtl.tenderAgenTersedia);
-
 ```
+
+buat fitur baru memasukkan follow atau reject
