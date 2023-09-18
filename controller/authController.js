@@ -1,6 +1,7 @@
 // Import register
+const { signInWithEmailAndPassword } = require("firebase/auth");
 const firebase = require("../db/firebase_admin");
-const admin = require("firebase-admin");
+const { auth } = require("../db/firebase_client");
 // import login
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -50,9 +51,13 @@ exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     console.log(req.body);
     // const isPassword = await firebase.getAuth.getUser(password);
-    const userCredential = await firebase.getAuth.getUserByEmail(email);
+    // const userCredential = await firebase.getAuth.getUserByEmail(email);
 
-    // const userCredential = await signInWithEmailAndPassword(email, password)
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
     // console.log(password)y
     if (!userCredential) {
