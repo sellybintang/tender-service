@@ -74,10 +74,10 @@ exports.login = async (req, res, next) => {
       });
     }
     const tokenPayload = {
-      uid: userCredential.uid,
-      email: userCredential.email,
+      uid: userCredential.user.uid,
+      email: userCredential.user.email,
     };
-
+    console.log(userCredential.user.uid);
     const token = jwt.sign(tokenPayload, process.env.JWT_SECRET);
 
     // const user =  userCredential.user
