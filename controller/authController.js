@@ -8,7 +8,7 @@ require("dotenv").config();
 
 exports.register = async (req, res) => {
   try {
-    const { email, password, nama, address, no_telp } = req.body;
+    const { email, password, nama, address, no_telp, role } = req.body;
 
     const userCredential = await firebase.getAuth.createUser({
       email,
@@ -16,15 +16,23 @@ exports.register = async (req, res) => {
     });
 
     const user = userCredential.uid;
+
     console.log(user.uid);
     const usersCollection = await firebase.db.collection("Users").doc(user);
 
     await usersCollection.set({
       nama,
+      role,
       address,
       no_telp,
     });
-
+    const roles = [1, 2];
+    if (!roles.includes(role)) {
+      return res.status(400).json({
+        status: "400",
+        message: "role tidak tersedia",
+      });
+    }
     console.log(usersCollection);
     res.status(200).json({
       status: "Succes",

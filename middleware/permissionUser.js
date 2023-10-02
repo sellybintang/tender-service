@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const firebase = require("../db/firebase_admin");
 
-const isUser = async (req, res, next) => {
+const permission = async (req, res, next) => {
   try {
     const bearer = req.headers.authorization;
 
@@ -34,6 +34,7 @@ const isUser = async (req, res, next) => {
       nama: usersCollection.data().nama,
       address: usersCollection.data().address,
       no_telp: usersCollection.data().no_telp,
+      role: usersCollection.data().role,
     };
 
     req.user = newData;
@@ -47,6 +48,81 @@ const isUser = async (req, res, next) => {
   }
 };
 
+const isUser = (req, res, next) => {
+  try {
+    if (req.user.role === 1) {
+      next();
+    } else {
+      return res.status(401).json({
+        status: "401",
+        message: "is not authorized",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "500",
+      message: error.message,
+    });
+  }
+};
+
+const isAgen = (req, res, next) => {
+  try {
+    if (req.user.role === 2) {
+      next();
+    } else {
+      return res.status(401).json({
+        status: "401",
+        message: "have to agen role",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "500",
+      message: error.message,
+    });
+  }
+};
+
+const isAdmin = async (req, res, next) => {
+  try {
+    if (req.user.role === 3) {
+      next();
+    } else {
+      return res.status(401).json({
+        status: "401",
+        message: "only be accessed by admin ",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "500",
+      message: error.message,
+    });
+  }
+};
+
+const isUser_Agen = (req, res, next) => {
+  try {
+    if (req.user.role === 1 || req.user.role === 2) {
+      next();
+    } else {
+      return res.status(401).json({
+        status: "401",
+        message: "only be accessed by user and agen",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "500",
+      message: error.message,
+    });
+  }
+};
 module.exports = {
+  permission,
   isUser,
+  isAgen,
+  isAdmin,
+  isUser_Agen,
 };

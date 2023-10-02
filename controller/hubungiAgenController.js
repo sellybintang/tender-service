@@ -1,5 +1,5 @@
 const Tender = require("../models/tenderSchema");
-
+const randomstring = require("randomstring");
 // BUAT TENDER
 const hubungiAgen = async (req, res) => {
   try {
@@ -40,7 +40,42 @@ const DeleteHubungiAgenId = async (req, res) => {
   try {
     const { id } = req.params;
     // const { uid } = req.user;
+    const hubungi = await Tender.findByIdAndUpdate(id, { is_show: true });
+    const { uid } = req.user;
+
+    if (hubungi.created_by !== uid) {
+      res.status(404).json({
+        status: "404",
+        message: "user_id is not a valid user",
+      });
+    }
+
+    res.status(200).json({
+      message: "Delete Hubungi Agen Berhasil",
+      hubungi,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Hubungi Agen Gagal",
+      message: err.message,
+    });
+  }
+};
+
+const DeleteHubungiAgenIdPermanent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // const { uid } = req.user;
     const hubungi = await Tender.findByIdAndDelete({ _id: id });
+    const { uid } = req.user;
+
+    if (hubungi.created_by !== uid) {
+      res.status(404).json({
+        status: "404",
+        message: "user_id is not a valid user",
+      });
+    }
+
     res.status(200).json({
       message: "Delete Hubungi Agen Berhasil",
       hubungi,
@@ -62,6 +97,12 @@ const tenderChoice = async (req, res) => {
     const { uid } = req.user;
     const select = await Tender.findById(id);
 
+    if (select.created_by !== uid) {
+      res.status(404).json({
+        status: "404",
+        message: "user_id is not a valid user",
+      });
+    }
     let updateFields = { ...select._doc }; // Salin data dari dokumen Tender
     if (!select) {
       return res.status(404).json({
@@ -112,9 +153,16 @@ const pilihAgenTender = async (req, res) => {
       property_name,
       property_address,
     } = req.body;
-    // const { uid } = req.user;
-    const tender = await Tender.findById(id);
+    const { uid } = req.user;
 
+    const tender = await Tender.findById(id);
+    console.log(tender.created_by);
+    if (tender.created_by !== uid) {
+      res.status(404).json({
+        status: "404",
+        message: "user_id is not a valid user",
+      });
+    }
     if (!tender) {
       return res.status(404).json({
         status: "404",
@@ -143,7 +191,7 @@ const pilihAgenTender = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      status: "pilih agen tender gagal",
+      status: "500",
       message: error,
     });
   }
@@ -177,13 +225,72 @@ const aturJadwalSurvei = async (req, res) => {
     });
 
     res.status(200).json({
-      status: "success",
+      status: "200",
       message: "Berhasil mengatur jadwal",
       aturJadwalPembeli,
     });
   } catch (error) {
     res.status(500).json({
-      status: "Atur Jadwal Survei gagal",
+      status: "500",
+      message: error.message,
+    });
+  }
+};
+
+const buatKavling = async (req, res) => {
+  try {
+    const id = req.params.id;
+    // let kavlingID = randomstring.generate({
+    //   length: 12,
+    //   charset: "alphabetic",
+    // });
+    const { kavling_id } = req.body;
+
+    const Semuakavling = await Tender.findOne({
+      kavling_id: kavling_id,
+    });
+    console.log(Semuakavling);
+
+    if (Semuakavling !== null) {
+      return res.status(401).json({
+        status: "401",
+        message: "Kavling not available",
+      });
+    }
+    const kavling = await Tender.findByIdAndUpdate(id, {
+      status: "kavling",
+      type_survey: "survey",
+      kavling_id: kavling_id,
+    });
+
+    res.status(200).json({
+      status: 200,
+      message: "Berhasil mengatur jadwal",
+      kavling,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Atur kavling gagal",
+      message: error.message,
+    });
+  }
+};
+
+const confirmationPurchase = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const confirmation_purchase = await Tender.updateOne(
+      { _id: id },
+      { confirmation_purchase: true }
+    );
+    res.status(200).json({
+      status: 200,
+      message: "Berhasil mengatur jadwal",
+      confirmation_purchase,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "500",
       message: error.message,
     });
   }
@@ -229,7 +336,7 @@ const hubungiAgenDenganQR = async (req, res) => {
     });
 
     res.status(200).json({
-      status: "success ",
+      status: "200",
       message: "success add new Tender with QR",
       hubungi,
     });
@@ -243,6 +350,22 @@ const hubungiAgenDenganQR = async (req, res) => {
 
 // bisa
 const daftarSemuaTender = async (req, res) => {
+  try {
+    const daftarSemua = await Tender.find({ is_show: false });
+    res.status(200).json({
+      status: "Succes",
+      message: "Succes show all tender",
+      daftarSemua,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Failed",
+      message: error,
+    });
+  }
+};
+
+const daftarSemuaTenderByAdmin = async (req, res) => {
   try {
     const daftarSemua = await Tender.find();
     res.status(200).json({
@@ -266,6 +389,7 @@ const daftarAgenTender = async (req, res) => {
     const daftarAgen = await Tender.find({
       status: "pending",
       participants_follow: uid,
+      is_show: false,
     });
 
     res.status(200).json({
@@ -286,7 +410,7 @@ const daftarAgenTender = async (req, res) => {
 const daftarTender = async (req, res) => {
   try {
     const { uid } = req.user;
-    const daftarTender = await Tender.find({ created_by: uid });
+    const daftarTender = await Tender.find({ created_by: uid, is_show: false });
     res.status(200).json({
       status: "Succes",
       message: "Daftar Tender",
@@ -303,11 +427,17 @@ const daftarTender = async (req, res) => {
 // bisa
 const agenda = async (req, res) => {
   try {
-    const waktuAgenda = await Tender.find({}).sort({ createdAd: 1 });
+    const waktuAgenda = await Tender.find({ is_show: false })
+      .sort({
+        createdAd: -1,
+      })
+      .limit(5);
+
+    const agenda = waktuAgenda.reverse();
     res.status(200).json({
       status: "Succes",
       message: "daftar urut agenda",
-      waktuAgenda,
+      agenda,
     });
   } catch (error) {
     res.status(500).json({
@@ -331,6 +461,7 @@ const checkUserHAsAuction = async (req, res) => {
     const cekUserPropertiGanda = await Tender.find({
       created_at: Date.now() - 24 * 60 * 60 * 1000,
       property_id: property,
+      is_show: false,
     });
     res.status(200).json({
       status: "Succes",
@@ -348,7 +479,10 @@ const checkUserHAsAuction = async (req, res) => {
 // bisa
 const auctionIsTimeup = async (req, res) => {
   try {
-    const auctionIsTimeup = await Tender.find({ status: "expired" });
+    const auctionIsTimeup = await Tender.find({
+      status: "expired",
+      is_show: false,
+    });
 
     res.status(200).json({
       status: "Succes",
@@ -371,6 +505,7 @@ const getAuctionFromCollectionByIdFollower = async (req, res) => {
     const { uid } = req.user;
     const getFromCollectionByIdFollower = await Tender.find({
       participants_follow: uid,
+      is_show: false,
     });
     res.status(200).json({
       status: "Succes",
@@ -389,8 +524,14 @@ const getAuctionFromCollectionByIdFollower = async (req, res) => {
 const getAuctionFromId = async (req, res) => {
   try {
     const id = req.params.id;
-    const getAuctionFromId = await Tender.find({ _id: id });
+    const getAuctionFromId = await Tender.findById(id);
 
+    if (getAuctionFromId.is_show === true) {
+      return res.status(400).json({
+        status: "400",
+        message: "Tender is not found",
+      });
+    }
     res.status(200).json({
       status: "Succes",
       message: "get auction from id",
@@ -399,7 +540,7 @@ const getAuctionFromId = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       status: "Failed",
-      message: error,
+      message: error.message,
     });
   }
 };
@@ -409,7 +550,10 @@ const getAuctionFromId = async (req, res) => {
 
 const tenderAgenTersedia = async (req, res) => {
   try {
-    const tenderAgenTersedia = await Tender.find({ status: "pending" });
+    const tenderAgenTersedia = await Tender.find({
+      status: "pending",
+      is_show: false,
+    });
 
     res.status(200).json({
       status: "Succes",
@@ -427,14 +571,19 @@ const tenderAgenTersedia = async (req, res) => {
 module.exports = {
   hubungiAgen,
   DeleteHubungiAgenId,
-
+  DeleteHubungiAgenIdPermanent,
   tenderChoice,
 
   hubungiAgenDenganQR,
   pilihAgenTender,
   aturJadwalSurvei,
 
+  buatKavling,
+  confirmationPurchase,
+
   daftarSemuaTender,
+
+  daftarSemuaTenderByAdmin,
   daftarAgenTender,
   daftarTender,
   agenda,
